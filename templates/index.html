@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Greeting Generator</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 0;
+      padding: 0;
+      height: 100vh;
+      background: url('/static/default.jpg') no-repeat center center fixed;
+      background-size: cover;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+    .container {
+      background: rgba(255, 255, 255, 0.85); /* semi-transparent */
+      padding: 30px;
+      border-radius: 15px;
+      text-align: center;
+      width: 350px; /* fixed width for uniformity */
+      box-shadow: 0 8px 20px rgba(0,0,0,0.3);
+    }
+    input, select, button {
+      margin: 10px 0;
+      padding: 10px;
+      width: 100%; /* make all boxes same width */
+      box-sizing: border-box;
+      border-radius: 5px;
+      border: 1px solid #ccc;
+      font-size: 16px;
+    }
+    button {
+      cursor: pointer;
+      background-color: #4CAF50;
+      color: white;
+      border: none;
+    }
+    button:hover {
+      background-color: #45a049;
+    }
+    img {
+      max-width: 100%;
+      margin-top: 20px;
+      border-radius: 10px;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>✨ Greeting Message Generator ✨</h1>
+    <input type="text" id="prompt" placeholder="Enter your prompt (e.g. Diwali wishes)">
+    <input type="text" id="name" placeholder="Enter Customer Name">
+    <select id="mode">
+      <option value="rule">Rule-based</option>
+      <option value="llm">AI-powered</option>
+    </select>
+    <select id="style">
+      <option value="Formal">Formal</option>
+      <option value="Friendly">Friendly</option>
+      <option value="Festive">Festive</option>
+    </select>
+    <button onclick="generateMessage()">Generate</button>
+    <div id="output"></div>
+  </div>
+
+  <script>
+    async function generateMessage() {
+      const prompt = document.getElementById("prompt").value;
+      const name = document.getElementById("name").value || "Customer"; // fallback if empty
+      const mode = document.getElementById("mode").value;
+      const style = document.getElementById("style").value;
+
+      const response = await fetch("/generate_message", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ prompt, name, mode, style })
+      });
+
+      const data = await response.json();
+      const outputDiv = document.getElementById("output");
+
+      if (data.error) {
+        outputDiv.innerHTML = `<p style="color:red;">Error: ${data.error}</p>`;
+      } else {
+        outputDiv.innerHTML = `
+          <p><strong>${data.message}</strong></p>
+          ${data.image_url ? `<img src="${data.image_url}" alt="Greeting Image">` : ""}
+        `;
+      }
+    }
+  </script>
+</body>
+</html>
